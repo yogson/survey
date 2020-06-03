@@ -83,7 +83,18 @@ class AnswerSerializer(serializers.ModelSerializer):
         else:
             raise ValidationError(detail=WRONG_DATA_ERROR)
 
-
     class Meta:
         model = Answer
         fields = ['id', 'user_id', 'survey', 'question', 'text', 'selected']
+
+
+class DeepAnswerSerialier(AnswerSerializer):
+
+    survey = serializers.PrimaryKeyRelatedField(
+        read_only=True
+    )
+
+    class Meta:
+        model = Answer
+        fields = ['id', 'survey', 'question', 'text', 'selected']
+        depth = 2

@@ -64,5 +64,6 @@ class ResultViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
     queryset = Answer.objects.all()
-    serializer_class = AnswerSerializer
+    serializer_class = DeepAnswerSerialier
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
