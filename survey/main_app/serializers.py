@@ -62,9 +62,12 @@ class OptionSerializer(serializers.ModelSerializer):
 
 
 class AnswerSerializer(serializers.ModelSerializer):
+    # Serializer with additional validation. We check for answers on consistency.
+
     def create(self, validated_data):
         new_answer = self.initial_data
         question = Question.objects.get(pk=new_answer.get('question'))
+        options_in_answer = new_answer.get('selected')
         survey = Survey.objects.filter(
             started_on__lte=timezone.now()).filter(
             finished_on__gt=timezone.now()).filter(
@@ -72,10 +75,15 @@ class AnswerSerializer(serializers.ModelSerializer):
         )
         if survey and question:
             if question.type == question.TYPE_CHOICES[0][0]:
-                if not new_answer.get('text') or new_answer.get('selected'):
+                if not new_answer.get('text') or options_in_answer:
                     raise ValidationError(detail=WRONG_DATA_ERROR)
             else:
-                if not new_answer.get('selected') or new_answer.get('text'):
+                if not options_in_answer or new_answer.get('text'):
+                    raise ValidationError(detail=WRONG_DATA_ERROR)
+                if len(options_in_answer) > 1 and question.type == question.TYPE_CHOICES[1][0]:
+                    raise ValidationError(detail=WRONG_DATA_ERROR)
+                options_in_question = set(question.answer_options.values_list('id', flat=True))
+                if not set(options_in_answer) <= options_in_question:
                     raise ValidationError(detail=WRONG_DATA_ERROR)
 
             return super().create(validated_data)
@@ -90,9 +98,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class DeepAnswerSerialier(AnswerSerializer):
 
-    survey = serializers.PrimaryKeyRelatedField(
-        read_only=True
-    )
+    survey = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Answer
