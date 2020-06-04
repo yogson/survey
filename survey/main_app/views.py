@@ -9,7 +9,6 @@ from .models import *
 from .serializers import *
 
 
-# TODO Change to FALSE!
 class SurveyViewSet(viewsets.ModelViewSet):
 
     queryset = Survey.objects.filter(started_on__lte=timezone.now()).filter(finished_on__gt=timezone.now())
