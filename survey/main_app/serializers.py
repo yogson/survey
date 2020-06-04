@@ -19,11 +19,25 @@ WRONG_DATA_ERROR = {
 
 
 class SurveySerializer(serializers.ModelSerializer):
-    # Serializer with additional update validation. We check for started_on.
+    # Serializer with additional update validation. We check for started_on and questions consistency.
+
+    def create(self, validated_data):
+        if self.initial_data.get('questions'):
+            questions = set(self.initial_data.get('questions'))
+            questions_available = set(Question.objects.all().values_list('id', flat=True))
+            if not questions <= questions_available:
+                raise ValidationError(detail=WRONG_DATA_ERROR)
+
+        return super().create(validated_data)
 
     def update(self, instance, validated_data):
         if instance.started_on != self.initial_data.get('started_on'):
             raise ValidationError(detail=STARTED_ON_ERROR)
+        if self.initial_data.get('questions'):
+            questions = set(self.initial_data.get('questions'))
+            questions_available = set(Question.objects.all().values_list('id', flat=True))
+            if not questions <= questions_available:
+                raise ValidationError(detail=WRONG_DATA_ERROR)
 
         return super().update(instance, validated_data)
 
