@@ -1,6 +1,6 @@
 asgiref==3.2.7
 dataclasses==0.7
-Django==2.2.10
+Django==2.2.13
 djangorestframework==3.11.0
 djangotoolbox==1.8.0
 psycopg2==2.8.5
