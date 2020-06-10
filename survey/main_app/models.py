@@ -41,14 +41,6 @@ class Question(models.Model):
     def __str__(self):
         return self.title
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        if self.type in [self.TYPE_CHOICES[1][0], self.TYPE_CHOICES[2][0]] and not self.answer_options:
-            return {'error': 'please, provide on answer'}
-        super().save()
-
-
-
 
 class Survey(models.Model):
 
